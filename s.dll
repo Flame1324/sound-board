@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GTAG Soundboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: transparent;
+}
+
+/* Toggle Button */
+#toggleBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2ecc71;
+    border: none;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+/* Menu */
+#menu {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 280px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    color: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
+
+.hidden {
+    display: none;
+}
+
+#menu h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.sound-btn {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    background: #27ae60;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: bold;
+}
+
+.sound-btn:hover {
+    background: #2ecc71;
+}
+
+.control-btn {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    background: #444;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.control-btn:hover {
+    background: #666;
+}
+
+input[type="file"] {
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<button id="toggleBtn">🎵</button>
+
+<div id="menu" class="hidden">
+    <h2>GTAG Soundboard</h2>
+
+    <button class="control-btn" onclick="document.getElementById('fileInput').click()">
+        Upload Sounds
+    </button>
+
+    <button class="control-btn" onclick="stopAllSounds()">
+        Stop All Sounds
+    </button>
+
+    <input type="file" id="fileInput" accept="audio/*" multiple>
+
+    <div id="soundContainer"></div>
+</div>
+
+<script>
+const toggleBtn = document.getElementById("toggleBtn");
+const menu = document.getElementById("menu");
+const fileInput = document.getElementById("fileInput");
+const soundContainer = document.getElementById("soundContainer");
+
+let activeSounds = [];
+
+// Toggle menu
+toggleBtn.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
+});
+
+// Upload sounds
+fileInput.addEventListener("change", function(event) {
+    const files = event.target.files;
+
+    for (let file of files) {
+        const url = URL.createObjectURL(file);
+
+        const btn = document.createElement("button");
+        btn.classList.add("sound-btn");
+        btn.textContent = file.name.replace(/\.[^/.]+$/, "");
+
+        btn.addEventListener("click", () => {
+            const audio = new Audio(url);
+            audio.volume = 1.0;
+            audio.play();
+
+            activeSounds.push(audio);
+
+            audio.onended = () => {
+                activeSounds = activeSounds.filter(a => a !== audio);
+            };
+        });
+
+        soundContainer.appendChild(btn);
+    }
+
+    fileInput.value = "";
+});
+
+// Stop all sounds
+function stopAllSounds() {
+    activeSounds.forEach(sound => {
+        sound.pause();
+        sound.currentTime = 0;
+    });
+    activeSounds = [];
+}
+</script>
+
+</body>
